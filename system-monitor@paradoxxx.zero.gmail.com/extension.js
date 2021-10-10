@@ -1483,6 +1483,54 @@ function createCpus() {
     return array;
 }
 
+const LoadAvg = class SystemMonitor_LoadAvg extends ElementBase {
+    constructor() {
+        super({
+            elt: 'loadavg',
+            item_name: _('LoadAvg'),
+            color_name: ['1min', '5min', '15min'],
+        });
+        this.gloadavg = new GTop.glibtop_loadavg();
+        this.usage = [0.0, 0.0, 0.0];
+        this.tip_format('');
+        this.update();
+    }
+    refresh() {
+        GTop.glibtop_get_loadavg(this.gloadavg);
+        // display global cpu usage on 1 graph
+        this.usage[0] = this.gloadavg.loadavg[0];
+        this.usage[1] = this.gloadavg.loadavg[1];
+        this.usage[2] = this.gloadavg.loadavg[2];
+    }
+    _apply() {
+        this.text_items[0].text = this.menu_items[0].text = this.usage[0].toString();
+        this.tip_vals = [ this.usage[0],this.usage[1],this.usage[2] ];
+        this.vals = [this.usage[0], this.usage[1], this.usage[2]];
+    }
+    create_text_items() {
+        return [
+            new St.Label({
+                text: '',
+                style_class: Style.get('sm-status-value'),
+                y_align: Clutter.ActorAlign.CENTER}),
+            new St.Label({
+                text: '', style_class: Style.get('sm-perc-label'),
+                y_align: Clutter.ActorAlign.CENTER})
+        ];
+    }
+    create_menu_items() {
+        return [
+            new St.Label({
+                text: '',
+                style_class: Style.get('sm-value')}),
+            new St.Label({
+                text: '',
+                style_class: Style.get('sm-label')})
+        ];
+    }
+}
+
+
 const Disk = class SystemMonitor_Disk extends ElementBase {
     constructor() {
         super({
